@@ -46,4 +46,5 @@ steps:
     gcloud deploy releases create 'app2-release-${SHORT_SHA}' --delivery-pipeline-gke-cicd-pipeline --region=us-central1 --from-k8s-manifest=./kubernetes/app2.yaml
 
 options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   logging: LEGACY
