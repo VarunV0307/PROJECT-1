@@ -1,5 +1,13 @@
-FROM node:18-alpine
-WORKDIR /usr/src/app
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . .
+
 EXPOSE 8080
-CMD ["node", "app.js"]
+
+CMD ["python", "app1.py"]
