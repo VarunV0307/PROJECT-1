@@ -45,10 +45,34 @@ steps:
 
 
 # ==========================================
-# Cloud Deploy
+# Prepare Kubernetes Manifests
 # ==========================================
-- name: 'google/cloud-sdk:latest'
-  id: 'Cloud Deploy'
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
+  id: 'Prepare Kubernetes Manifests'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      set -e
+
+      echo "Updating App1 image..."
+      sed -i "s|quickstart-image|quickstart-image:$SHORT_SHA|g" kubernetes/app1.yaml
+
+      echo "Updating App2 image..."
+      sed -i "s|flask-image|flask-image:$SHORT_SHA|g" kubernetes/app2.yaml
+
+      echo "App1 manifest:"
+      cat kubernetes/app1.yaml
+
+      echo "App2 manifest:"
+      cat kubernetes/app2.yaml
+
+
+# ==========================================
+# Apply Cloud Deploy Pipeline
+# ==========================================
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
+  id: 'Apply Cloud Deploy Configuration'
   entrypoint: 'bash'
   args:
     - '-c'
@@ -70,13 +94,39 @@ steps:
         --file=deploy/prod.yaml \
         --region=us-central1
 
+
+# ==========================================
+# Create App1 Release
+# ==========================================
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
+  id: 'Create App1 Release'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      set -e
+
       echo "Creating App1 release..."
+
       gcloud deploy releases create "app1-release-${SHORT_SHA}" \
         --delivery-pipeline=gke-cicd-pipeline \
         --region=us-central1 \
         --from-k8s-manifest=./kubernetes/app1.yaml
 
+
+# ==========================================
+# Create App2 Release
+# ==========================================
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:slim'
+  id: 'Create App2 Release'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      set -e
+
       echo "Creating App2 release..."
+
       gcloud deploy releases create "app2-release-${SHORT_SHA}" \
         --delivery-pipeline=gke-cicd-pipeline \
         --region=us-central1 \

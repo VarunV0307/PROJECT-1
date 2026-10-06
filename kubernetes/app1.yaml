@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-deployment
+  name: app1-deployment
 spec:
   replicas: 3
+
   selector:
     matchLabels:
-      app: my-app
+      app: app1
+
   template:
     metadata:
       labels:
-        app: my-app
+        app: app1
+
     spec:
       containers:
-      - name: my-container-1
-        image: us-central1-docker.pkg.dev/project-62ad09b9-d8ae-4ae2-8db/gke-repo/quickstart-image
-        ports:
-        - containerPort: 8080
+        - name: app1-container
+          image: us-central1-docker.pkg.dev/project-62ad09b9-d8ae-4ae2-8db/gke-repo/quickstart-image
+          ports:
+            - containerPort: 8080
